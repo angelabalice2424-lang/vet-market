@@ -1,0 +1,28 @@
+<%- include('partials/header', { title: 'Ficha de consulta' }) %>
+
+<h1>Consulta: <%= appt.pet_name %></h1>
+<% if (saved) { %><p class="ok">Cambios guardados.</p><% } %>
+
+<div class="card-form">
+  <p><strong>Cuándo:</strong> <%= formatDate(appt.date) %> a las <%= appt.time %> hs</p>
+  <p><strong>Dueño:</strong> <%= appt.owner_name %> · <%= appt.owner_email %> <%= appt.owner_phone ? '· ' + appt.owner_phone : '' %></p>
+  <p><strong>Mascota:</strong> <%= appt.pet_species %> <%= appt.pet_breed ? '· ' + appt.pet_breed : '' %> <%= appt.pet_age ? '· ' + appt.pet_age : '' %> <%= appt.pet_weight ? '· ' + appt.pet_weight : '' %></p>
+  <p><strong>Motivo:</strong> <%= appt.reason %></p>
+  <p><strong>Síntomas:</strong></p>
+  <div class="pre"><%= appt.symptoms %></div>
+  <% if (appt.urgent) { %><div class="alerta">El relato incluye señales de posible urgencia. Confirmá que el dueño esté derivado a guardia si corresponde.</div><% } %>
+  <% if (appt.status === 'booked') { %>
+    <p><a class="btn" href="<%= roomUrl(appt.room) %>" target="_blank" rel="noopener">Entrar a la videollamada</a></p>
+  <% } %>
+</div>
+
+<form method="post" action="/vet/consulta/<%= appt.id %>" class="card-form">
+  <label>Diagnóstico orientativo, pautas y próximos pasos
+    <textarea name="notes" rows="8"><%= appt.notes || '' %></textarea>
+  </label>
+  <label class="check"><input type="checkbox" name="done" <%= appt.status === 'done' ? 'checked' : '' %>> Marcar consulta como realizada</label>
+  <label class="check"><input type="checkbox" name="send_email"> Enviar estas pautas por email al dueño</label>
+  <button class="btn" type="submit">Guardar</button>
+</form>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,26 @@
+<%- include('partials/header', { title: 'Turnos' }) %>
+
+<h1>Últimos turnos</h1>
+
+<% if (appointments.length === 0) { %><p>Todavía no hay turnos.</p><% } %>
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr><th>Fecha</th><th>Hora</th><th>Veterinario</th><th>Mascota</th><th>Dueño</th><th>Estado</th></tr>
+  </thead>
+  <tbody>
+    <% appointments.forEach(a => { %>
+      <tr class="<%= a.urgent ? 'urgente' : '' %>">
+        <td><%= a.date %></td>
+        <td><%= a.time %></td>
+        <td><%= a.vet_name %></td>
+        <td><%= a.pet_name %></td>
+        <td><%= a.owner_email %></td>
+        <td><%= a.status %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+</div>
+
+<%- include('partials/footer') %>

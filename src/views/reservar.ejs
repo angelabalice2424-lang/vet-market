@@ -1,0 +1,87 @@
+<%- include('partials/header', { title: 'Reservar' }) %>
+<% const v = (k) => (values && values[k]) || ''; %>
+
+<h1>Reservar consulta</h1>
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+
+<form method="get" action="/reservar" class="card-form">
+  <label>Veterinario
+    <select name="vet" required>
+      <option value="">Elegí un veterinario</option>
+      <% vets.forEach(x => { %>
+        <option value="<%= x.id %>" <%= vet && vet.id === x.id ? 'selected' : '' %>><%= x.name %> — <%= x.specialty %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label>Día
+    <select name="date" required>
+      <option value="">Elegí un día</option>
+      <% days.forEach(d => { %>
+        <option value="<%= d %>" <%= date === d ? 'selected' : '' %>><%= formatDate(d) %></option>
+      <% }) %>
+    </select>
+  </label>
+  <button class="btn" type="submit">Ver horarios</button>
+</form>
+
+<% if (vet && date) { %>
+  <% if (slots.length === 0) { %>
+    <p>No hay horarios libres para ese día. Probá con otra fecha.</p>
+  <% } else { %>
+    <form method="post" action="/reservar" class="card-form">
+      <input type="hidden" name="vet" value="<%= vet.id %>">
+      <input type="hidden" name="date" value="<%= date %>">
+
+      <fieldset>
+        <legend>Horario</legend>
+        <div class="slots">
+          <% slots.forEach(s => { %>
+            <label class="slot">
+              <input type="radio" name="time" value="<%= s %>" required <%= v('time') === s ? 'checked' : '' %>>
+              <span><%= s %></span>
+            </label>
+          <% }) %>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tus datos</legend>
+        <label>Nombre y apellido <input name="owner_name" required value="<%= v('owner_name') %>"></label>
+        <label>Email (ahí te llega el link del turno) <input type="email" name="owner_email" required value="<%= v('owner_email') %>"></label>
+        <label>Teléfono (opcional) <input name="owner_phone" value="<%= v('owner_phone') %>"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tu mascota</legend>
+        <label>Nombre <input name="pet_name" required value="<%= v('pet_name') %>"></label>
+        <label>Especie
+          <select name="pet_species" required>
+            <% ['Perro', 'Gato', 'Otra'].forEach(e => { %>
+              <option <%= v('pet_species') === e ? 'selected' : '' %>><%= e %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>Raza (opcional) <input name="pet_breed" value="<%= v('pet_breed') %>"></label>
+        <label>Edad (opcional) <input name="pet_age" placeholder="Ej: 3 años" value="<%= v('pet_age') %>"></label>
+        <label>Peso aproximado (opcional) <input name="pet_weight" placeholder="Ej: 8 kg" value="<%= v('pet_weight') %>"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Qué le pasa</legend>
+        <label>Motivo de la consulta <input name="reason" required placeholder="Ej: vómitos y decaimiento" value="<%= v('reason') %>"></label>
+        <label>Síntomas, desde cuándo empezó y qué hiciste
+          <textarea name="symptoms" rows="5" required><%= v('symptoms') %></textarea>
+        </label>
+      </fieldset>
+
+      <label class="check">
+        <input type="checkbox" name="accept" required>
+        Entiendo que la teleconsulta orienta, pero no reemplaza el examen presencial ni una urgencia.
+      </label>
+
+      <button class="btn" type="submit">Confirmar turno</button>
+    </form>
+  <% } %>
+<% } %>
+
+<%- include('partials/footer') %>

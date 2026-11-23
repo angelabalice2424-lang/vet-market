@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · Vet Turnos</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/">🐾 Vet Turnos</a>
+    <nav>
+      <% if (user && user.role === 'vet') { %>
+        <a href="/vet">Mi panel</a>
+        <a href="/vet/disponibilidad">Disponibilidad</a>
+      <% } %>
+      <% if (user && user.role === 'admin') { %>
+        <a href="/admin">Veterinarios</a>
+        <a href="/admin/turnos">Turnos</a>
+      <% } %>
+      <% if (user) { %>
+        <form method="post" action="/logout" class="inline"><button class="link" type="submit">Salir</button></form>
+      <% } else { %>
+        <a href="/login">Ingresar</a>
+      <% } %>
+    </nav>
+  </header>
+  <main class="container">

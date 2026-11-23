@@ -1,0 +1,37 @@
+<%- include('partials/header', { title: 'Disponibilidad' }) %>
+
+<h1>Mi disponibilidad</h1>
+<p class="small">Cargá los bloques en los que atendés cada semana. Los horarios se dividen en turnos de la duración que elijas.</p>
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+
+<% if (rules.length === 0) { %>
+  <p>Todavía no cargaste horarios.</p>
+<% } %>
+<ul class="cards">
+  <% rules.forEach(r => { %>
+    <li class="card">
+      <strong><%= DIAS[r.weekday] %></strong>
+      <span><%= r.start_time %> a <%= r.end_time %> · turnos de <%= r.slot_minutes %> min</span>
+      <form method="post" action="/vet/disponibilidad/<%= r.id %>/borrar" onsubmit="return confirm('¿Borrar este bloque?')">
+        <button class="btn secundario" type="submit">Borrar</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>
+
+<h2>Agregar bloque</h2>
+<form method="post" action="/vet/disponibilidad" class="card-form">
+  <label>Día
+    <select name="weekday" required>
+      <% [1, 2, 3, 4, 5, 6, 0].forEach(d => { %>
+        <option value="<%= d %>"><%= DIAS[d] %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label>Desde <input type="time" name="start_time" required value="09:00"></label>
+  <label>Hasta <input type="time" name="end_time" required value="13:00"></label>
+  <label>Duración de cada turno (minutos) <input type="number" name="slot_minutes" min="10" max="120" value="20" required></label>
+  <button class="btn" type="submit">Guardar bloque</button>
+</form>
+
+<%- include('partials/footer') %>

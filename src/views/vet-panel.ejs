@@ -1,0 +1,23 @@
+<%- include('partials/header', { title: 'Mi panel' }) %>
+
+<h1>Próximos turnos</h1>
+
+<% if (appointments.length === 0) { %>
+  <p>No tenés turnos próximos. Cargá tu disponibilidad para que te reserven.</p>
+<% } %>
+
+<ul class="cards">
+  <% appointments.forEach(a => { %>
+    <li class="card <%= a.urgent ? 'urgente' : '' %>">
+      <strong><%= formatDate(a.date) %> · <%= a.time %> hs</strong>
+      <span><%= a.pet_name %> (<%= a.pet_species %>) — <%= a.reason %></span>
+      <% if (a.urgent) { %><span class="badge">Posible urgencia</span><% } %>
+      <div class="actions">
+        <a class="btn" href="<%= roomUrl(a.room) %>" target="_blank" rel="noopener">Entrar a la sala</a>
+        <a class="btn secundario" href="/vet/consulta/<%= a.id %>">Ficha y pautas</a>
+      </div>
+    </li>
+  <% }) %>
+</ul>
+
+<%- include('partials/footer') %>

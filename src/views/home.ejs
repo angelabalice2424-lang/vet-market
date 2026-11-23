@@ -1,0 +1,26 @@
+<%- include('partials/header', { title: 'Inicio' }) %>
+
+<section class="hero">
+  <h1>Consulta veterinaria por videollamada</h1>
+  <p>¿Tu mascota tiene un problema y no podés llegar a una veterinaria? Reservá una consulta con un veterinario que evalúe lo que pasa y te indique qué hacer mientras tanto.</p>
+  <a class="btn" href="/reservar">Reservar turno</a>
+</section>
+
+<section>
+  <h2>Veterinarios disponibles</h2>
+  <% if (vets.length === 0) { %>
+    <p>Todavía no hay veterinarios cargados.</p>
+  <% } %>
+  <ul class="cards">
+    <% vets.forEach(v => { %>
+      <li class="card"><strong><%= v.name %></strong><span><%= v.specialty %></span></li>
+    <% }) %>
+  </ul>
+</section>
+
+<section class="alerta">
+  <h2>Cuándo no sirve la videollamada</h2>
+  <p>Si tu mascota tiene convulsiones, dificultad para respirar, sangrado abundante, se intoxicó, fue atropellada, se desmayó o no puede orinar, <strong>llevala ya a una veterinaria de guardia</strong>. La videollamada no reemplaza una urgencia.</p>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,31 @@
+<%- include('partials/header', { title: 'Veterinarios' }) %>
+<% const v = (k) => (values && values[k]) || ''; %>
+
+<h1>Veterinarios</h1>
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+
+<% if (vets.length === 0) { %><p>No hay veterinarios cargados.</p><% } %>
+<ul class="cards">
+  <% vets.forEach(x => { %>
+    <li class="card">
+      <strong><%= x.name %> <%= x.active ? '' : '(inactivo)' %></strong>
+      <span><%= x.specialty %> · Mat. <%= x.license %></span>
+      <span class="small"><%= x.email || 'sin cuenta' %></span>
+      <form method="post" action="/admin/veterinarios/<%= x.id %>/estado">
+        <button class="btn secundario" type="submit"><%= x.active ? 'Desactivar' : 'Activar' %></button>
+      </form>
+    </li>
+  <% }) %>
+</ul>
+
+<h2>Agregar veterinario</h2>
+<form method="post" action="/admin/veterinarios" class="card-form">
+  <label>Nombre y apellido <input name="name" required value="<%= v('name') %>"></label>
+  <label>Especialidad <input name="specialty" required placeholder="Ej: Clínica general" value="<%= v('specialty') %>"></label>
+  <label>Matrícula <input name="license" required value="<%= v('license') %>"></label>
+  <label>Email de acceso <input type="email" name="email" required value="<%= v('email') %>"></label>
+  <label>Contraseña inicial (mínimo 8) <input type="password" name="password" required minlength="8"></label>
+  <button class="btn" type="submit">Crear veterinario</button>
+</form>
+
+<%- include('partials/footer') %>

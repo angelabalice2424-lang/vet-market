@@ -1,0 +1,39 @@
+<%- include('partials/header', { title: 'Tu turno' }) %>
+
+<h1>Turno</h1>
+
+<% if (appt.urgent && appt.status === 'booked') { %>
+  <div class="alerta">
+    <strong>Atención:</strong> los síntomas que describiste pueden ser urgentes.
+    Si tu mascota está mal ahora, llevala a una veterinaria de guardia sin esperar la consulta.
+  </div>
+<% } %>
+<% if (appt.status === 'cancelled') { %>
+  <p class="error">Este turno fue cancelado.</p>
+<% } %>
+
+<div class="card-form">
+  <p><strong>Veterinario:</strong> <%= appt.vet_name %> (<%= appt.specialty %>)</p>
+  <p><strong>Cuándo:</strong> <%= formatDate(appt.date) %> a las <%= appt.time %> hs</p>
+  <p><strong>Mascota:</strong> <%= appt.pet_name %> · <%= appt.pet_species %></p>
+
+  <% if (appt.status === 'booked') { %>
+    <p><a class="btn" href="<%= roomUrl(appt.room) %>" target="_blank" rel="noopener">Entrar a la videollamada</a></p>
+    <p class="small">Entrá unos minutos antes, desde la compu o el celular, con cámara y micrófono habilitados.
+      Guardá esta página: es el link de tu turno.</p>
+    <p class="small">Link de tu turno: <code><%= baseUrl %>/turno/<%= token %></code></p>
+  <% } %>
+</div>
+
+<% if (appt.status === 'done' && appt.notes) { %>
+  <h2>Pautas del veterinario</h2>
+  <div class="card-form pre"><%= appt.notes %></div>
+<% } %>
+
+<% if (appt.status === 'booked') { %>
+  <form method="post" action="/turno/<%= token %>/cancelar" onsubmit="return confirm('¿Cancelar el turno?')">
+    <button class="btn secundario" type="submit">Cancelar turno</button>
+  </form>
+<% } %>
+
+<%- include('partials/footer') %>
