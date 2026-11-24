@@ -69,10 +69,14 @@ router.post('/reservar', async (req, res) => {
       b.reason.trim(), b.symptoms.trim(), urgent, room, token
     );
   } catch (err) {
-    // Si dos personas reservan el mismo horario a la vez, la restricción única lo frena
+    console.error('Error al crear el turno:', err);
+    // Solo es "ocupado" si la restricción única de la base lo frenó
+    const ocupado = /UNIQUE/i.test(String(err.message));
     return renderReservar(res, {
-      status: 409, vetId: vet.id, date: b.date, values: b,
-      error: 'Ese horario acaba de reservarse. Elegí otro.',
+      status: ocupado ? 409 : 500, vetId: vet.id, date: b.date, values: b,
+      error: ocupado
+        ? 'Ese horario acaba de reservarse. Elegí otro.'
+        : 'No pudimos guardar el turno por un error interno. Intentá de nuevo en unos minutos.',
     });
   }
 
