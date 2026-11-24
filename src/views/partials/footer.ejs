@@ -3,5 +3,8 @@
     <p>La teleconsulta orienta y da pautas. <strong>No reemplaza el examen presencial ni una urgencia.</strong>
       Ante síntomas graves, llevá a tu mascota a una veterinaria de guardia.</p>
   </footer>
+  <% if (typeof script !== 'undefined') { %>
+    <script src="/<%= script %>?v=<%= assetV %>" defer></script>
+  <% } %>
 </body>
 </html>

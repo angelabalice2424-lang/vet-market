@@ -1,39 +1,66 @@
 <%- include('partials/header', { title: 'Reservar' }) %>
 <% const v = (k) => (values && values[k]) || ''; %>
+<% const etiquetaDia = (d, i) => {
+  const dt = new Date(d + 'T12:00:00');
+  if (i === 0) return 'Hoy';
+  if (i === 1) return 'Mañana';
+  return dt.toLocaleDateString('es-AR', { weekday: 'short' }).replace('.', '');
+}; %>
 
 <h1>Reservar consulta</h1>
-<% if (error) { %><p class="error"><%= error %></p><% } %>
+<% if (error) { %><p class="error" role="alert"><%= error %></p><% } %>
 
-<form method="get" action="/reservar" class="card-form">
-  <label>Veterinario
-    <select name="vet" required>
-      <option value="">Elegí un veterinario</option>
-      <% vets.forEach(x => { %>
-        <option value="<%= x.id %>" <%= vet && vet.id === x.id ? 'selected' : '' %>><%= x.name %> — <%= x.specialty %></option>
-      <% }) %>
-    </select>
-  </label>
-  <label>Día
-    <select name="date" required>
-      <option value="">Elegí un día</option>
-      <% days.forEach(d => { %>
-        <option value="<%= d %>" <%= date === d ? 'selected' : '' %>><%= formatDate(d) %></option>
-      <% }) %>
-    </select>
-  </label>
-  <button class="btn" type="submit">Ver horarios</button>
-</form>
+<%# Paso 1: elegir veterinario %>
+<h2>1. ¿Con quién querés hablar?</h2>
+<% if (vets.length === 0) { %>
+  <div class="vacio"><%- ilu.gato %><p>No hay veterinarios disponibles por ahora.</p></div>
+<% } %>
+<ul class="vet-grid">
+  <% vets.forEach(x => { %>
+    <li>
+      <a class="vet-option <%= vet && vet.id === x.id ? 'elegido' : '' %>" href="/reservar?vet=<%= x.id %>" <%= vet && vet.id === x.id ? 'aria-current="true"' : '' %>>
+        <span class="avatar" style="background: <%= ilu.colorAvatar(x.id) %>" aria-hidden="true"><%= ilu.iniciales(x.name) %></span>
+        <span>
+          <strong><%= x.name %></strong>
+          <span class="esp"><%= x.specialty %></span>
+        </span>
+      </a>
+    </li>
+  <% }) %>
+</ul>
 
+<%# Paso 2: elegir día %>
+<% if (vet) { %>
+  <h2>2. ¿Qué día te viene bien?</h2>
+  <div class="chips" role="group" aria-label="Días disponibles">
+    <% days.forEach((d, i) => { %>
+      <a class="chip <%= date === d ? 'elegido' : '' %>" href="/reservar?vet=<%= vet.id %>&date=<%= d %>" <%= date === d ? 'aria-current="true"' : '' %>>
+        <span><%= etiquetaDia(d, i) %></span>
+        <small><%= new Date(d + 'T12:00:00').getDate() %></small>
+      </a>
+    <% }) %>
+  </div>
+<% } %>
+
+<%# Paso 3: horario y formulario %>
 <% if (vet && date) { %>
+  <h2>3. Elegí el horario</h2>
   <% if (slots.length === 0) { %>
-    <p>No hay horarios libres para ese día. Probá con otra fecha.</p>
+    <div class="vacio">
+      <%- ilu.gato %>
+      <p>No hay horarios libres ese día. Probá con otra fecha.</p>
+    </div>
   <% } else { %>
-    <form method="post" action="/reservar" class="card-form">
+    <form method="post" action="/reservar" class="card-form" id="reserva">
       <input type="hidden" name="vet" value="<%= vet.id %>">
       <input type="hidden" name="date" value="<%= date %>">
 
+      <div class="resumen" aria-live="polite">
+        <%= vet.name %> · <%= formatDate(date) %> · <span id="hora-elegida">elegí un horario</span>
+      </div>
+
       <fieldset>
-        <legend>Horario</legend>
+        <legend>Horarios libres</legend>
         <div class="slots">
           <% slots.forEach(s => { %>
             <label class="slot">
@@ -44,44 +71,62 @@
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend>Tus datos</legend>
-        <label>Nombre y apellido <input name="owner_name" required value="<%= v('owner_name') %>"></label>
-        <label>Email (ahí te llega el link del turno) <input type="email" name="owner_email" required value="<%= v('owner_email') %>"></label>
-        <label>Teléfono (opcional) <input name="owner_phone" value="<%= v('owner_phone') %>"></label>
-      </fieldset>
+      <div class="stepper js-only">
+        <div class="stepper-bar" aria-hidden="true"><span id="barra"></span></div>
+        <div class="stepper-label" id="etiqueta-paso" aria-live="polite"></div>
+      </div>
 
-      <fieldset>
-        <legend>Tu mascota</legend>
-        <label>Nombre <input name="pet_name" required value="<%= v('pet_name') %>"></label>
-        <label>Especie
-          <select name="pet_species" required>
-            <% ['Perro', 'Gato', 'Otra'].forEach(e => { %>
-              <option <%= v('pet_species') === e ? 'selected' : '' %>><%= e %></option>
-            <% }) %>
-          </select>
+      <%# Paso A: tus datos %>
+      <div class="paso" data-titulo="Tus datos">
+        <fieldset>
+          <legend>Tus datos</legend>
+          <label>Nombre y apellido <input name="owner_name" required autocomplete="name" value="<%= v('owner_name') %>"></label>
+          <label>Email (ahí te llega el link del turno) <input type="email" name="owner_email" required autocomplete="email" value="<%= v('owner_email') %>"></label>
+          <label>Teléfono (opcional) <input type="tel" name="owner_phone" autocomplete="tel" value="<%= v('owner_phone') %>"></label>
+        </fieldset>
+      </div>
+
+      <%# Paso B: tu mascota %>
+      <div class="paso" data-titulo="Tu mascota">
+        <fieldset>
+          <legend>Tu mascota</legend>
+          <label>Nombre <input name="pet_name" required value="<%= v('pet_name') %>"></label>
+          <label>Especie
+            <select name="pet_species" required>
+              <% ['Perro', 'Gato', 'Otra'].forEach(e => { %>
+                <option <%= v('pet_species') === e ? 'selected' : '' %>><%= e %></option>
+              <% }) %>
+            </select>
+          </label>
+          <label>Raza (opcional) <input name="pet_breed" value="<%= v('pet_breed') %>"></label>
+          <label>Edad (opcional) <input name="pet_age" placeholder="Ej: 3 años" value="<%= v('pet_age') %>"></label>
+          <label>Peso aproximado (opcional) <input name="pet_weight" placeholder="Ej: 8 kg" value="<%= v('pet_weight') %>"></label>
+        </fieldset>
+      </div>
+
+      <%# Paso C: qué le pasa %>
+      <div class="paso" data-titulo="Qué le pasa">
+        <fieldset>
+          <legend>Qué le pasa</legend>
+          <label>Motivo de la consulta <input name="reason" required placeholder="Ej: vómitos y decaimiento" value="<%= v('reason') %>"></label>
+          <label>Síntomas, desde cuándo empezó y qué hiciste
+            <textarea name="symptoms" rows="5" required placeholder="Ej: desde ayer no quiere comer, vomitó dos veces y tomó agua."><%= v('symptoms') %></textarea>
+          </label>
+        </fieldset>
+        <label class="check">
+          <input type="checkbox" name="accept" required>
+          Entiendo que la teleconsulta orienta, pero no reemplaza el examen presencial ni una urgencia.
         </label>
-        <label>Raza (opcional) <input name="pet_breed" value="<%= v('pet_breed') %>"></label>
-        <label>Edad (opcional) <input name="pet_age" placeholder="Ej: 3 años" value="<%= v('pet_age') %>"></label>
-        <label>Peso aproximado (opcional) <input name="pet_weight" placeholder="Ej: 8 kg" value="<%= v('pet_weight') %>"></label>
-      </fieldset>
+      </div>
 
-      <fieldset>
-        <legend>Qué le pasa</legend>
-        <label>Motivo de la consulta <input name="reason" required placeholder="Ej: vómitos y decaimiento" value="<%= v('reason') %>"></label>
-        <label>Síntomas, desde cuándo empezó y qué hiciste
-          <textarea name="symptoms" rows="5" required><%= v('symptoms') %></textarea>
-        </label>
-      </fieldset>
+      <div class="paso-nav js-only">
+        <button class="btn secundario" type="button" id="anterior">Atrás</button>
+        <button class="btn" type="button" id="siguiente">Siguiente</button>
+      </div>
 
-      <label class="check">
-        <input type="checkbox" name="accept" required>
-        Entiendo que la teleconsulta orienta, pero no reemplaza el examen presencial ni una urgencia.
-      </label>
-
-      <button class="btn" type="submit">Confirmar turno</button>
+      <button class="btn acento" type="submit" id="confirmar">Confirmar turno</button>
     </form>
   <% } %>
 <% } %>
 
-<%- include('partials/footer') %>
+<%- include('partials/footer', { script: 'stepper.js' }) %>

@@ -1,25 +1,46 @@
 <%- include('partials/header', { title: 'Inicio' }) %>
 
 <section class="hero">
-  <h1>Consulta veterinaria por videollamada</h1>
-  <p>¿Tu mascota tiene un problema y no podés llegar a una veterinaria? Reservá una consulta con un veterinario que evalúe lo que pasa y te indique qué hacer mientras tanto.</p>
-  <a class="btn" href="/reservar">Reservar turno</a>
+  <div>
+    <h1>Tu mascota no se siente bien y no podés salir?</h1>
+    <p>Hablá por videollamada con un veterinario. Te escucha, evalúa lo que pasa y te dice qué hacer mientras tanto.</p>
+  </div>
+  <div class="hero-art"><%- ilu.familia %></div>
+  <a class="btn" href="/reservar">Reservar una consulta</a>
 </section>
 
 <section>
-  <h2>Veterinarios disponibles</h2>
+  <h2>Cómo funciona</h2>
+  <ol class="steps">
+    <li><strong>Elegí veterinario y horario.</strong> Contanos qué le pasa a tu mascota.</li>
+    <li><strong>Entrá a la videollamada.</strong> Te llega el link por email, desde la compu o el celular.</li>
+    <li><strong>Recibí pautas claras.</strong> Y sabés si necesita ir a una veterinaria.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Nuestros veterinarios</h2>
   <% if (vets.length === 0) { %>
-    <p>Todavía no hay veterinarios cargados.</p>
+    <div class="vacio">
+      <%- ilu.gato %>
+      <p>Todavía no hay veterinarios disponibles. Volvé en unos minutos.</p>
+    </div>
   <% } %>
   <ul class="cards">
     <% vets.forEach(v => { %>
-      <li class="card"><strong><%= v.name %></strong><span><%= v.specialty %></span></li>
+      <li class="card" style="flex-direction: row; align-items: center; gap: 14px;">
+        <span class="avatar" style="background: <%= ilu.colorAvatar(v.id) %>" aria-hidden="true"><%= ilu.iniciales(v.name) %></span>
+        <span>
+          <strong><%= v.name %></strong><br>
+          <span class="small"><%= v.specialty %></span>
+        </span>
+      </li>
     <% }) %>
   </ul>
 </section>
 
-<section class="alerta">
-  <h2>Cuándo no sirve la videollamada</h2>
+<section class="alerta" role="note">
+  <h2 style="margin-top: 0;">Cuándo no alcanza con una videollamada</h2>
   <p>Si tu mascota tiene convulsiones, dificultad para respirar, sangrado abundante, se intoxicó, fue atropellada, se desmayó o no puede orinar, <strong>llevala ya a una veterinaria de guardia</strong>. La videollamada no reemplaza una urgencia.</p>
 </section>
 

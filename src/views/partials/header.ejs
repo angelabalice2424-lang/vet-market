@@ -1,14 +1,24 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-AR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %> · Vet Turnos</title>
-  <link rel="stylesheet" href="/styles.css">
+  <meta name="theme-color" content="#2f8f6b">
+  <meta name="description" content="Consulta veterinaria por videollamada cuando no podés llevar a tu mascota a la clínica.">
+  <meta property="og:title" content="<%= appName %> · Consulta veterinaria por videollamada">
+  <meta property="og:description" content="Reservá una teleconsulta con un veterinario y recibí pautas para tu mascota.">
+  <meta property="og:type" content="website">
+  <title><%= title %> · <%= appName %></title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css?v=<%= assetV %>">
+  <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
   <header class="top">
-    <a class="brand" href="/">🐾 Vet Turnos</a>
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">🐾</span>
+      <%= appName %>
+    </a>
     <nav>
       <% if (user && user.role === 'vet') { %>
         <a href="/vet">Mi panel</a>

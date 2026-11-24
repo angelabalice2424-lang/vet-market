@@ -1,24 +1,35 @@
 <%- include('partials/header', { title: 'Tu turno' }) %>
 
-<h1>Turno</h1>
+<h1>Tu turno</h1>
 
 <% if (appt.urgent && appt.status === 'booked') { %>
-  <div class="alerta">
+  <div class="alerta" role="alert">
     <strong>Atención:</strong> los síntomas que describiste pueden ser urgentes.
     Si tu mascota está mal ahora, llevala a una veterinaria de guardia sin esperar la consulta.
   </div>
 <% } %>
+
 <% if (appt.status === 'cancelled') { %>
   <p class="error">Este turno fue cancelado.</p>
+<% } else { %>
+  <ol class="timeline" aria-label="Estado del turno">
+    <li class="hecho">Turno reservado<small><%= formatDate(appt.date) %> a las <%= appt.time %> hs</small></li>
+    <% if (appt.status === 'booked') { %>
+      <li class="actual">Videollamada<small>Entrá a la sala a la hora del turno</small></li>
+      <li>Pautas<small>El veterinario te las envía al terminar</small></li>
+    <% } else { %>
+      <li class="hecho">Videollamada<small>Consulta realizada</small></li>
+      <li class="hecho">Pautas<small>Revisá la sección de abajo</small></li>
+    <% } %>
+  </ol>
 <% } %>
 
 <div class="card-form">
-  <p><strong>Veterinario:</strong> <%= appt.vet_name %> (<%= appt.specialty %>)</p>
-  <p><strong>Cuándo:</strong> <%= formatDate(appt.date) %> a las <%= appt.time %> hs</p>
+  <p><strong>Veterinario:</strong> <%= appt.vet_name %> <span class="small">· <%= appt.specialty %></span></p>
   <p><strong>Mascota:</strong> <%= appt.pet_name %> · <%= appt.pet_species %></p>
 
   <% if (appt.status === 'booked') { %>
-    <p><a class="btn" href="<%= roomUrl(appt.room) %>" target="_blank" rel="noopener">Entrar a la videollamada</a></p>
+    <a class="btn" href="<%= roomUrl(appt.room) %>" target="_blank" rel="noopener">Entrar a la videollamada</a>
     <p class="small">Entrá unos minutos antes, desde la compu o el celular, con cámara y micrófono habilitados.
       Guardá esta página: es el link de tu turno.</p>
     <p class="small">Link de tu turno: <code><%= baseUrl %>/turno/<%= token %></code></p>

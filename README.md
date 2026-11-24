@@ -41,6 +41,7 @@ Abrir `http://localhost:3000`. Si no configurás SMTP, los mails no se envían y
 1. **Código en GitHub.** Subí esta carpeta a un repositorio privado (sin `.env`, `node_modules` ni `data`; el `.gitignore` ya los excluye).
 2. **Crear el servicio.** En EasyPanel: *Create Service → App*, origen *GitHub*, build con **Dockerfile**.
 3. **Variables de entorno.** Cargá las de `.env.example`. Como mínimo:
+   - `APP_NAME` = nombre de la app (por defecto `Patitas`).
    - `BASE_URL` = `https://tu-dominio` (sin barra final).
    - `SESSION_SECRET` = un texto largo y aleatorio.
    - `COOKIE_SECURE` = `true`.

@@ -4,6 +4,7 @@ const session = require('express-session');
 const { initDb } = require('./db');
 const { formatDate, todayStr } = require('./services/slots');
 const { roomUrl } = require('./services/video');
+const ilu = require('./services/illustrations');
 
 const publicRoutes = require('./routes/public');
 const authRoutes = require('./routes/auth');
@@ -20,6 +21,13 @@ app.disable('x-powered-by');
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
+// Fuente Nunito autoalojada: sin requests a Google Fonts
+app.use(
+  '/fonts',
+  express.static(path.join(__dirname, '..', 'node_modules', '@fontsource-variable', 'nunito', 'files'), {
+    maxAge: '30d',
+  })
+);
 
 app.use(
   session({
@@ -36,6 +44,8 @@ app.use(
 );
 
 const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+// Cambia en cada arranque: fuerza al navegador a bajar el CSS y JS nuevos tras un deploy
+const ASSET_VERSION = Date.now().toString(36);
 
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
@@ -44,6 +54,9 @@ app.use((req, res, next) => {
   res.locals.formatDate = formatDate;
   res.locals.todayStr = todayStr;
   res.locals.DIAS = DIAS;
+  res.locals.appName = process.env.APP_NAME || 'Patitas';
+  res.locals.assetV = ASSET_VERSION;
+  res.locals.ilu = ilu;
   next();
 });
 
